@@ -33,14 +33,25 @@ This project for demonstrate basic Spring Boot with simple CRUD Rest API connect
     ./mvnw spring-boot:run
     ```
 
+Remark: Update `jwt.secret` in `application.properties` to your own key. This can be done by run this command
+
+```bash
+openssl rand -base64 32
+```
+
 ### Accessing the Application
 
 - The application will be running at: `http://localhost:8080`
 - Swagger UI: `http://localhost:8080/swagger-ui/index.html`
 - OpenAPI Docs: `http://localhost:8080/api-docs`
 
+Default database credential
+Username: `bookstore_user`
+Password: `bookstore_password`
+
 ### Running Tests
 
 To run the tests, use the following command:
 ```sh
 ./mvnw test
+```

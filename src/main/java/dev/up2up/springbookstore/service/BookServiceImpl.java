@@ -6,6 +6,7 @@ import dev.up2up.springbookstore.exception.ResourceNotFoundException;
 import dev.up2up.springbookstore.mapper.BookMapper;
 import dev.up2up.springbookstore.model.BookDto;
 import dev.up2up.springbookstore.model.CreateBookRequest;
+import dev.up2up.springbookstore.model.UpdateBookRequest;
 import dev.up2up.springbookstore.repository.AuthorRepository;
 import dev.up2up.springbookstore.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,49 +36,34 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Optional<Book> getBookById(Long id) {
-        return bookRepository.findById(id);
+    public BookDto getBookById(Long id) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + id));
+
+        return bookMapper.toDto(book);
     }
 
     @Override
     public BookDto createBook(CreateBookRequest createBookRequest) {
-        // Validate if the author exists
         Author author = authorRepository.findById(createBookRequest.getAuthorId())
                 .orElseThrow(() -> new ResourceNotFoundException("Author not found with id: " + createBookRequest.getAuthorId()));
 
-        // Map CreateBookRequest to Book entity
-        Book book = new Book();
-        book.setTitle(createBookRequest.getTitle());
-        book.setIsbn(createBookRequest.getIsbn());
-        book.setPrice(createBookRequest.getPrice());
+        Book book = bookMapper.fromCreateRequestToEntity(createBookRequest);
         book.setAuthor(author);
-        
-        // Save and convert to DTO
-        return convertToDto(bookRepository.save(book));
-    }
 
-    private BookDto convertToDto(Book book) {
-        return BookDto.builder()
-                .id(book.getId())
-                .title(book.getTitle())
-                .isbn(book.getIsbn())
-                .price(book.getPrice())
-                .authorId(book.getAuthor().getId())
-                .authorName(book.getAuthor().getName())
-                .build();
+        return bookMapper.toDto(bookRepository.save(book));
     }
 
     @Override
-    public Book updateBook(Long id, Book bookDetails) {
+    public BookDto updateBook(Long id, UpdateBookRequest updateBookRequest) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + id));
 
-        book.setTitle(bookDetails.getTitle());
-        book.setIsbn(bookDetails.getIsbn());
-        book.setPrice(bookDetails.getPrice());
-        book.setAuthor(bookDetails.getAuthor());
+        bookMapper.updateEntityFromUpdateRequest(updateBookRequest, book);
 
-        return bookRepository.save(book);
+        Book updatedBook = bookRepository.save(book);
+
+        return bookMapper.toDto(updatedBook);
     }
 
     @Override

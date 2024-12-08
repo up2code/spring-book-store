@@ -4,6 +4,7 @@ import dev.up2up.springbookstore.entity.Book;
 import dev.up2up.springbookstore.model.BookDto;
 import dev.up2up.springbookstore.model.CreateBookRequest;
 import dev.up2up.springbookstore.model.ErrorDetails;
+import dev.up2up.springbookstore.model.UpdateBookRequest;
 import dev.up2up.springbookstore.service.BookService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,7 +17,9 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -43,10 +46,8 @@ public class BookController {
             @ApiResponse(responseCode = "404", description = "Book not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDetails.class)))
     })
     @Parameter(name = "id", description = "The ID of the book", required = true)
-    public ResponseEntity<Book> getBookById(@PathVariable Long id) {
-        return bookService.getBookById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<BookDto> getBookById(@PathVariable Long id) {
+        return ResponseEntity.ok(bookService.getBookById(id));
     }
 
     @PostMapping
@@ -55,8 +56,14 @@ public class BookController {
             @ApiResponse(responseCode = "201", description = "Book created successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDetails.class)))
     })
-    public BookDto createBook(@RequestBody CreateBookRequest createBookRequest) {
-        return bookService.createBook(createBookRequest);
+    public ResponseEntity<BookDto> createBook(@RequestBody CreateBookRequest createBookRequest) {
+        BookDto createdBook = bookService.createBook(createBookRequest);
+        URI location = ServletUriComponentsBuilder
+            .fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(createdBook.getId())
+            .toUri();
+        return ResponseEntity.created(location).body(createdBook);
     }
 
     @PutMapping("/{id}")
@@ -65,8 +72,8 @@ public class BookController {
             @ApiResponse(responseCode = "200", description = "Book updated successfully"),
             @ApiResponse(responseCode = "404", description = "Book not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDetails.class)))
     })
-    public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book book) {
-        return ResponseEntity.ok(bookService.updateBook(id, book));
+    public ResponseEntity<BookDto> updateBook(@PathVariable Long id, @RequestBody UpdateBookRequest updateBookRequest) {
+        return ResponseEntity.ok(bookService.updateBook(id, updateBookRequest));
     }
 
     @DeleteMapping("/{id}")

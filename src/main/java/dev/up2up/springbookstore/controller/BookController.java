@@ -1,6 +1,5 @@
 package dev.up2up.springbookstore.controller;
 
-import dev.up2up.springbookstore.entity.Book;
 import dev.up2up.springbookstore.model.BookDto;
 import dev.up2up.springbookstore.model.CreateBookRequest;
 import dev.up2up.springbookstore.model.ErrorDetails;

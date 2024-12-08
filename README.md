@@ -44,6 +44,8 @@ openssl rand -base64 32
 - The application will be running at: `http://localhost:8080`
 - Swagger UI: `http://localhost:8080/swagger-ui/index.html`
 - OpenAPI Docs: `http://localhost:8080/api-docs`
+- Prometheus: `http://localhost:9090`
+- Grafana: `http://localhost:3000` (admin|admin)
 
 Default database credential
 Username: `bookstore_user`
